@@ -3,6 +3,7 @@ package com.mygdx.game;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -21,7 +22,7 @@ public class MyGdxGame extends ApplicationAdapter {
     SpriteBatch batch;
     Texture background;
     Texture gameover;
-    ShapeRenderer shapeRenderer;
+    //ShapeRenderer shapeRenderer;
 
 
     //creating an array of texture
@@ -68,7 +69,7 @@ public class MyGdxGame extends ApplicationAdapter {
         return "MyGdxGame{" +
                 "batch=" + batch +
                 ", background=" + background +
-                ", shapeRenderer=" + shapeRenderer +
+                //", shapeRenderer=" + shapeRenderer +
                 ", rocket=" + rocket +
                 ", rocketCircle=" + rocketCircle +
                 ", velocityx=" + velocityx +
@@ -101,6 +102,7 @@ public class MyGdxGame extends ApplicationAdapter {
 
 
 
+
     //For accelerometer
     private float renderx;
     private float rendery;
@@ -113,6 +115,7 @@ public class MyGdxGame extends ApplicationAdapter {
         font.setColor(Color.RED);
         font.getData().setScale(25);
 
+
         //runs when the app is run
         batch = new SpriteBatch();
         //bg.png so now our background refers to this texture
@@ -122,15 +125,14 @@ public class MyGdxGame extends ApplicationAdapter {
         gameover = new Texture("gameover.jpg");
 
 
-
         //specifying the number of items in our array which is birds
         rocket = new Texture("rocket1.png");
 
+
         //creating our shape from our shape method
-        shapeRenderer = new ShapeRenderer();
+        //shapeRenderer = new ShapeRenderer();
         //creating our cicle from our circle method
         rocketCircle = new Circle();
-
 
 
         //for accelerometer;
@@ -142,23 +144,27 @@ public class MyGdxGame extends ApplicationAdapter {
         //rockety = Gdx.graphics.getHeight() / 2 - rocket.getHeight() / 2;
 
 
-        meteors = new Texture("Meteor.jpg");
+
         galaxy = new Texture("galaxy.gif");
 
-        maxstaroffset = Gdx.graphics.getHeight()-gap/3 -100;
+        maxstaroffset = Gdx.graphics.getHeight() - gap / 2 - 100;
 
 
         //random generator
         //for each star wee initially wanna set their x coord and their offset
         //used to randomize orientation of meteors on our screen
         randomGenerator = new Random();
-        distancebetweenstars = Gdx.graphics.getWidth()/3f;
+        distancebetweenstars = Gdx.graphics.getWidth() / 3f;
 
 
         //creating rec for our meteors and galaxies
-        meteorsrects = new Rectangle[numberofstars];
         galaxyrects = new Rectangle[numberofstars];
+        startgame();
+    }
 
+
+
+    public void  startgame(){
 
         for(int i =0; i< numberofstars;i++){
             //mmultiply by scale factor
@@ -166,10 +172,10 @@ public class MyGdxGame extends ApplicationAdapter {
             //this creats a ranom number between 0 and 1 since we
             //are working with the center of te screen
 
-            stars[i] = Gdx.graphics.getHeight()/1.6f - meteors.getHeight()/2 + i*distancebetweenstars;
+
             stars[i] = Gdx.graphics.getHeight()/1.3f - galaxy.getHeight()/1.8f + i*distancebetweenstars;
 
-            meteorsrects[i] = new Rectangle();
+
             galaxyrects[i] = new Rectangle();
 
         }
@@ -209,7 +215,7 @@ public class MyGdxGame extends ApplicationAdapter {
 
 
 
-        //Fly when a tap is detected
+
         if (gameState == 1) {
             if(stars[scoringstar] < Gdx.graphics.getWidth()/2) {
                 //add one to the score if that happens
@@ -222,16 +228,21 @@ public class MyGdxGame extends ApplicationAdapter {
                     scoringstar++;
                 }
             }
-            //when the user touches the screen the bird recieves a touch upwards
+
+
+
             if (Gdx.input.isTouched()) {
                 //when the screen is touched
+                //galaxies start flying
                starvelocity +=2;
+               gameState =1;
+
 
 
             }
 
             for(int i = 0; i<numberofstars;i++){
-                if(stars[i]< - meteors.getWidth()){
+                if(stars[i]< - galaxy.getWidth()){
                     stars[i]+=(numberofstars*distancebetweenstars);
                 }
 
@@ -242,13 +253,13 @@ public class MyGdxGame extends ApplicationAdapter {
 
                 }
 
-                batch.draw(meteors,stars[i],Gdx.graphics.getWidth()/1.6f+gap/2+starsoffset[i]);
+
                 batch.draw(galaxy,stars[i],Gdx.graphics.getWidth()/1.9f+galaxy.getWidth()+starsoffset[i]);
 
 
 
                 //creating the rectangle is very similar to drawing the tube
-                meteorsrects[i] = new Rectangle(stars[i],Gdx.graphics.getWidth()/1.6f+gap/2+starsoffset[i],meteors.getHeight(),meteors.getWidth());
+
                 galaxyrects[i] = new Rectangle(stars[i],Gdx.graphics.getWidth()/1.9f+galaxy.getWidth()+starsoffset[i],galaxy.getHeight(),galaxy.getWidth());
             }
 
@@ -257,31 +268,38 @@ public class MyGdxGame extends ApplicationAdapter {
                //
 
             }
+
             else{
-                gameState = 2;
+                gameState = 2 ;
+
+                batch.draw(gameover, Gdx.graphics.getWidth()/2 - gameover.getWidth()/2, Gdx.graphics.getHeight()/2 - gameover.getHeight()/2);
             }
 
 
         }//only do this check if the gae state is zero
-        else if (gameState ==0){
+        else if (gameState == 0){
                 if(Gdx.input.isTouched()){
                 //when the screen is touched
                 gameState = 1;
+
             }
 
-        }else if (gameState ==2){
+        }else if (gameState == 2){
             batch.draw(gameover, Gdx.graphics.getWidth()/2 - gameover.getWidth()/2, Gdx.graphics.getHeight()/2 - gameover.getHeight()/2);
-            //
+            if(Gdx.input.isTouched()){
+                //when the screen is touched
+                gameState = 1;
+                startgame();
+
+            }
         }
 
 
 
 
 
-
-
         //batch.draw(rocket, Gdx.graphics.getWidth() / 2 - rocket.getWidth() , rockety);
-        //batch.draw(rocket,renderx*1.5f,rendery*2,200,200);
+        batch.draw(rocket,renderx*1.5f,rendery*2,200,200);
 
         //drawing the score on the bottom left of the screen
         //font.draw(batch,String.valueOf(score),100,);
@@ -291,32 +309,36 @@ public class MyGdxGame extends ApplicationAdapter {
         batch.end();
 
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        //shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
-        shapeRenderer.setColor(Color.PINK);
+        //shapeRenderer.setColor(new Color(0f, 0f, 1f, 0.5f));
+        //Gdx.gl.glEnable(GL20.GL_BLEND);
+        //Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
-        rocketCircle.set (renderx*1.5f+100, rendery*2+100,100);
-        shapeRenderer.circle(rocketCircle.x,rocketCircle.y,rocketCircle.radius);
+        rocketCircle.set (renderx*1.5f+100, rendery*2+100,30);
+        //shapeRenderer.circle(rocketCircle.x,rocketCircle.y,rocketCircle.radius);
 
 
         //shapeRenderer.circle(rocketCircle.x,rocketCircle.y,rocketCircle.radius);
 
+
         //each time we loop through we want to render a rect
         for(int i =0; i<numberofstars;i++){
-            shapeRenderer.rect(stars[i],Gdx.graphics.getWidth()/1.6f+gap/2+starsoffset[i],meteors.getWidth(),meteors.getHeight());
-            shapeRenderer.rect(stars[i],Gdx.graphics.getWidth()/1.9f+galaxy.getWidth()+starsoffset[i],galaxy.getHeight(),galaxy.getWidth());
+            //shapeRenderer.rect(stars[i],Gdx.graphics.getWidth()/1.9f+galaxy.getWidth()+starsoffset[i],galaxy.getHeight(),galaxy.getWidth());
 
-            if(Intersector.overlaps(rocketCircle,galaxyrects[i])|| Intersector.overlaps(rocketCircle,meteorsrects[i])){
+            if(Intersector.overlaps(rocketCircle,galaxyrects[i])){
+
+
+                starvelocity-= starvelocity;
+                gameState = 2;
 
             }
 
 
 
-
         }
 
-
-        shapeRenderer.end();
+        //shapeRenderer.end();
 
 
     }
